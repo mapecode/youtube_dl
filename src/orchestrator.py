@@ -12,8 +12,8 @@ class OrchestratorI(TrawlNet.Orchestrator):
     def __init__(self, downloader):
         self.downloader = downloader
 
-    def download_task(self, url, current=None):
-        print(Color.BOLD+Color.BLUE+'Forward request to download '+url+Color.END)
+    def downloadTask(self, url, current=None):
+        print(Color.BOLD + Color.BLUE + 'Forward request to download ' + url + Color.END)
         if self.downloader is not None:
             return self.downloader.addDownloadTask(url)
 
@@ -21,7 +21,7 @@ class OrchestratorI(TrawlNet.Orchestrator):
 class Server(Ice.Application):
     def run(self, argv):
         if len(argv) < 2:
-            print(Color.BOLD+Color.RED + 'Error in arguments' + Color.END)
+            print(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
             return -1
 
         broker = self.communicator()
@@ -30,12 +30,12 @@ class Server(Ice.Application):
         downloader = TrawlNet.DownloaderPrx.checkedCast(downloader_proxy)
 
         if not downloader:
-            raise ValueError(Color.RED + 'Invalid proxy '+ Color.END)
+            raise ValueError(Color.RED + 'Invalid proxy ' + Color.END)
 
         adapter = broker.createObjectAdapter('OrchestratorAdapter')
         servant = OrchestratorI(downloader)
         proxy = adapter.addWithUUID(servant)
-        print(Color.BOLD + Color.BLUE + str(proxy) + Color.END, flush=True)
+        print(proxy, flush=True)
         adapter.activate()
 
         self.shutdownOnInterrupt()

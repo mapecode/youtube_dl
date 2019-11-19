@@ -10,7 +10,7 @@ import TrawlNet
 
 
 class DownloaderI(TrawlNet.Downloader):
-    def write_url(self, url, current=None):
+    def addDownloadTask(self, url, current=None):
         print(Color.BOLD+Color.GREEN+url+Color.END)
         sys.stdout.flush()
         download_mp3(url)
