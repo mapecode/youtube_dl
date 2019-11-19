@@ -1,3 +1,5 @@
+import os
+
 try:
     import youtube_dl
 except ImportError:
@@ -15,6 +17,7 @@ class NullLogger:
     def error(self, msg):
         pass
 
+
 _YOUTUBEDL_OPTS_ = {
     'format': 'bestaudio/best',
     'postprocessors': [{
@@ -22,8 +25,8 @@ _YOUTUBEDL_OPTS_ = {
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
-    'logger': NullLogger()
 }
+
 
 def download_mp3(url, destination='./'):
     '''
@@ -31,8 +34,10 @@ def download_mp3(url, destination='./'):
     '''
     options = {}
     task_status = {}
+
     def progress_hook(status):
         task_status.update(status)
+
     options.update(_YOUTUBEDL_OPTS_)
     options['progress_hooks'] = [progress_hook]
     options['outtmpl'] = os.path.join(destination, '%(title)s.%(ext)s')
@@ -44,3 +49,5 @@ def download_mp3(url, destination='./'):
     return filename + options['postprocessors'][0]['preferredcodec']
 
 
+if __name__ == '__main__':
+    download_mp3('https://www.youtube.com/watch?v=jwj-6mrVs7o')
