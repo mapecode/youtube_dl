@@ -16,7 +16,7 @@ class Client(Ice.Application):
         if not orchestrator:
             raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
 
-        orchestrator.downloadTask(argv[2])
+        print(Color.GREEN+"mp3 downloaded => '"+Color.BOLD+orchestrator.downloadTask(argv[2])+"'"+Color.END)
 
         return 0
 
