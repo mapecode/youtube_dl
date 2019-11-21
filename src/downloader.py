@@ -13,7 +13,7 @@ class DownloaderI(TrawlNet.Downloader):
     def addDownloadTask(self, url, current=None):
         print(url)
         sys.stdout.flush()
-        download_mp3(url)
+        return download_mp3(url)
 
 
 class Server(Ice.Application):
