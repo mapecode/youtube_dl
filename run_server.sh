@@ -5,6 +5,6 @@ PID=$!
 
 sleep 2
 
-python3 src/orchestrator.py --Ice.Config=server.config "$(head -1 /tmp/downloader-proxy.out)" | tee /tmp/orchestrator-proxy.out
+python3 src/orchestrator.py --Ice.Config=server.config "$(head -1 /tmp/downloader-proxy.out)"
 
 kill -KILL $PID
