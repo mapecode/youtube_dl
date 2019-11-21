@@ -11,7 +11,7 @@ import TrawlNet
 
 class DownloaderI(TrawlNet.Downloader):
     def addDownloadTask(self, url, current=None):
-        print(Color.BOLD+Color.GREEN+url+Color.END)
+        print(url)
         sys.stdout.flush()
         download_mp3(url)
 
@@ -34,4 +34,4 @@ class Server(Ice.Application):
 
 
 if __name__ == '__main__':
-    Server().main(sys.argv)
+    sys.exit(Server().main(sys.argv))

@@ -22,4 +22,4 @@ class Client(Ice.Application):
 
 
 if __name__ == '__main__':
-    Client().main(sys.argv)
+    sys.exit(Client().main(sys.argv))
