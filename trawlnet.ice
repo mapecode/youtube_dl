@@ -1,11 +1,28 @@
-// Trawlent Initial phase: introducing actors
+// Trawlent 2nd phase: syncing and downloading
 
 module TrawlNet {
+  struct FileInfo {
+    string name;
+    string hash;
+  };
+
+  sequence<FileInfo> FileList;
+
   interface Downloader {
-    string addDownloadTask(string url);
+    FileInfo addDownloadTask(string url);
   };
 
   interface Orchestrator {
-    string downloadTask(string url);
+    FileInfo downloadTask(string url);
+    FileList getFileList();
+    void announce(Orchestrator* other);
   };
-};
+
+  interface OrchestratorEvent {
+    void hello(Orchestrator* me);
+  };
+
+  interface UpdateEvent {
+    void newFile(FileInfo file);
+  };
+}
