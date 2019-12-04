@@ -1,6 +1,10 @@
 // Trawlent 2nd phase: syncing and downloading
 
 module TrawlNet {
+  exception DownloadError {
+      string reason;
+  };
+
   struct FileInfo {
     string name;
     string hash;
@@ -9,13 +13,15 @@ module TrawlNet {
   sequence<FileInfo> FileList;
 
   interface Downloader {
-    FileInfo addDownloadTask(string url);
+    FileInfo addDownloadTask(string url)
+      throws DownloadError;
   };
 
   interface Orchestrator {
-    FileInfo downloadTask(string url);
     FileList getFileList();
     void announce(Orchestrator* other);
+    FileInfo downloadTask(string url)
+      throws DownloadError;
   };
 
   interface OrchestratorEvent {
@@ -25,4 +31,4 @@ module TrawlNet {
   interface UpdateEvent {
     void newFile(FileInfo file);
   };
-}
+};
