@@ -2,6 +2,7 @@ import IceStorm
 
 ORCHESTRATOR_TOPIC_NAME = 'OrchestratorSync'
 DOWNLOADER_TOPIC_NAME = 'UpdateSync'
+EXCEPTION = IceStorm.NoSuchTopic
 
 
 def get_topic_manager(broker, topic_sync):
