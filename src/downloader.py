@@ -15,6 +15,11 @@ class DownloaderI(TrawlNet.Downloader):
         sys.stdout.flush()
         return download_mp3(url)
 
+    def newFile(self):
+        pass
+
+
+
 
 class Server(Ice.Application):
     def run(self, argv):
