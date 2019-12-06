@@ -5,7 +5,7 @@ DOWNLOADER_TOPIC_NAME = 'UpdateSync'
 EXCEPTION = IceStorm.NoSuchTopic
 
 
-def get_topic_manager(broker, topic_sync):
+def get_topic_manager(broker):
     key = 'IceStorm.TopicManager.Proxy'
     topic_manager_proxy = broker.propertyToProxy(key)
 
