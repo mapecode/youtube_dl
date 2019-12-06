@@ -1,7 +1,7 @@
 import IceStorm
 
 ORCHESTRATOR_TOPIC_NAME = 'OrchestratorSync'
-DOWNLOADER_TOPIC_NAME = 'UpdateSync'
+DOWNLOADER_TOPIC_NAME = 'UpdateEvents'
 EXCEPTION = IceStorm.NoSuchTopic
 
 
