@@ -2,12 +2,16 @@
 """Dudas
 ¿Como se manejan varios orchestrators?
 ¿Cada vez que se crea un orchestrator se crea la estructura de datos que los contiene?
+¿Dicha estructura de datos (diccionario) debe contiene el orchestator y su respectivo downloader, 
+    de la forma (key = orchestator, value = downloader)?
 ¿El cliente como se conecta con un orchestrator si hay varios lanzados?
 ¿Cual es la secuencia de pasos que se deben seguir al ejecutar un orchestrator?
 ¿Los orchestrators son publicadores y suscriptores de ambos canales?
 ¿Por que las clases de los eventos tienen que tener asociadas un orchestrator?
 ¿Es correcta la asociacion del orchestrator a una clase de evento pasando la instancia del
 orchestrator al crear el evento?
+¿La lista de ficheros descargados, la debe de contener el orchestator, o el downloader. Que seria mas correcto?
+¿Si dicha lista la tiene el orchestator, el downloader puede realizar funciones sobre ella, o solo el orchestator?
 """
 import sys
 import Ice
@@ -53,7 +57,9 @@ class UpdateEventI(TrawlNet.UpdateEvent):
 class Orchestrator:
     def __init__(self, broker, downloader_prx):
         self.orchestrators_dic = {}
-        self.files_dic = {}
+
+        # Files Dictionary {key = file_hash, value = file_name}
+        self.files_dic = {} 
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
         self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
