@@ -1,10 +1,21 @@
 #!/bin/sh
 
-python3 src/downloader.py --Ice.Config=server.config > /tmp/downloader-proxy.out &
+PYTHON=python3
+
+DOWNLOADER_CONFIG=server.config
+ORCHESTRATOR_CONFIG=$DOWNLOADER_CONFIG
+
+PRX=$(tempfile)
+$PYTHON downloader.py --Ice.Config=$DOWNLOADER_CONFIG>$PRX &
 PID=$!
 
-sleep 2
+# Dejamos arrancar al downloader
+sleep 1
+echo "Downloader: $(cat $PRX)"
 
-python3 src/orchestrator.py --Ice.Config=server.config "$(head -1 /tmp/downloader-proxy.out)"
+# Lanzamos el orchestrator
+$PYTHON orchestrator.py --Ice.Config=$ORCHESTRATOR_CONFIG "$(cat $PRX)"
 
+echo "Shoutting down..."
 kill -KILL $PID
+rm $PRX
