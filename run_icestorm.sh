@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 
 CONFIG_FILE=icebox.config
 
