@@ -1,5 +1,5 @@
 import IceStorm
-from src.color import Color
+from color import Color
 
 ORCHESTRATOR_TOPIC_NAME = 'OrchestratorSync'
 DOWNLOADER_TOPIC_NAME = 'UpdateEvents'
