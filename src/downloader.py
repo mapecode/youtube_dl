@@ -18,8 +18,8 @@ def encode(s):
 
 
 class DownloaderI(TrawlNet.Downloader, files_list):
-    def __init__(self):
-        self.publisher = None
+    def __init__(self, publisher):
+        self.publisher = publisher
 
     # Add download task 
     def addDownloadTask(self, url, current=None):
@@ -37,7 +37,6 @@ class DownloaderI(TrawlNet.Downloader, files_list):
         file_info.name = os.path.basename(exit_file)
         file_info.hash = encode(file_info.name)
 
-        ## if self.publisher is not None:
         self.publisher.newFile(file_info)
 
         return file_info
@@ -61,8 +60,8 @@ class Server(Ice.Application):
             sync_topic = sync_topic.create(my_storm.DOWNLOADER_TOPIC_NAME)
 
         # Downloader Servant
-        servant = DownloaderI()
-        servant.publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
+        publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
+        servant = DownloaderI(publisher)
 
         proxy = adapter.addWithUUID(servant)
         print(Color.BOLD + Color.GREEN + str(proxy) + Color.END)
