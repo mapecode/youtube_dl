@@ -35,7 +35,7 @@ class UpdateEventI(TrawlNet.UpdateEvent):
         self.orchestrator = orchestrator
 
     def newFile(self, file, current=None):
-        self.orchestrator.files[file.hash] = file.name
+        self.orchestrator.files_dic[file.hash] = file.name
 
 
 class Orchestrator:
@@ -84,13 +84,13 @@ class Orchestrator:
     def hello_to(self, orchestrator):
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print(Color.BOLD + Color.CYAN + "New orchestrator: " + str(orchestrator_str) + Color.END)
+            print("New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
 
     def new_orchestrator(self, orchestrator):
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print(Color.BOLD + Color.BLUE + "Previous orchestrator: " + str(orchestrator_str) + Color.END)
+            print("Previous orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
             orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
