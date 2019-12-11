@@ -46,7 +46,7 @@ class Orchestrator:
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
         self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
-        if not self.downloader:
+        if self.downloader is None:
             raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
 
         # Get topics with my_storm
@@ -86,13 +86,13 @@ class Orchestrator:
         if orchestrator_str not in self.orchestrators_dic:
             print("New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
+            orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
     def new_orchestrator(self, orchestrator):
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
             print("Previous orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
-            orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
     def get_files(self):
         for file_hash in self.files_dic:
