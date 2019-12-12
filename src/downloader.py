@@ -4,7 +4,6 @@ import sys
 import os
 import hashlib
 import Ice
-from color import Color
 from download_mp3 import download_mp3
 import my_storm as my_storm
 
@@ -23,11 +22,10 @@ class DownloaderI(TrawlNet.Downloader):
 
     # Add download task 
     def addDownloadTask(self, url, current=None):
-        print("Download request: " + str(url))
-        sys.stdout.flush()
-        out_file = download_mp3(url)
-        print("Downloaded file: " + str(out_file))
-        sys.stdout.flush()
+        try:
+            out_file = download_mp3(url)
+        except Exception as e:
+            raise TrawlNet.DownloadError(str(e))
 
         file = TrawlNet.FileInfo()
         file.name = os.path.basename(out_file)

@@ -1,6 +1,5 @@
 import IceStorm
-from color import Color
-
+import color
 ORCHESTRATOR_TOPIC_NAME = 'OrchestratorSync'
 DOWNLOADER_TOPIC_NAME = 'UpdateEvents'
 
@@ -15,7 +14,7 @@ def get_topic_manager(broker):
     topic_manager = IceStorm.TopicManagerPrx.checkedCast(topic_manager_proxy)
 
     if not topic_manager:
-        raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy in topic manager' + Color.END)
+        raise ValueError(color.BOLD + color.RED + 'Invalid proxy in topic manager' + color.END)
 
     return topic_manager
 

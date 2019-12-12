@@ -80,7 +80,10 @@ class Orchestrator:
         self.topic_updates.unsubscribe(self.updates_subscriber_prx)
 
     def send_download_task(self, url):
-        return self.downloader.addDownloadTask(url)
+        try:
+            return self.downloader.addDownloadTask(url)
+        except TrawlNet.DownloadError as e:
+            raise e
 
     def hello_to(self, orchestrator):
         orchestrator_str = orchestrator.ice_toString()
