@@ -4,16 +4,11 @@ import sys
 import os
 import hashlib
 import Ice
-from download_mp3 import download_mp3
+from download_mp3 import download_mp3_with_id
 import my_storm as my_storm
 
 Ice.loadSlice('trawlnet.ice')
 import TrawlNet
-
-
-def encode(s):
-    h = hashlib.md5(s.encode())
-    return h.hexdigest()
 
 
 class DownloaderI(TrawlNet.Downloader):
@@ -23,13 +18,13 @@ class DownloaderI(TrawlNet.Downloader):
     # Add download task 
     def addDownloadTask(self, url, current=None):
         try:
-            out_file = download_mp3(url)
+            out_file, file_id = download_mp3_with_id(url)
         except Exception as e:
             raise TrawlNet.DownloadError(str(e))
 
         file = TrawlNet.FileInfo()
         file.name = os.path.basename(out_file)
-        file.hash = encode(file.name)
+        file.hash = file_id
 
         self.publisher.newFile(file)
 

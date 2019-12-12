@@ -3,6 +3,8 @@ import sys
 import Ice
 import color
 import my_storm as my_storm
+from download_mp3 import generate_id, supported
+
 
 Ice.loadSlice('trawlnet.ice')
 import TrawlNet
@@ -80,10 +82,20 @@ class Orchestrator:
         self.topic_updates.unsubscribe(self.updates_subscriber_prx)
 
     def send_download_task(self, url):
-        try:
-            return self.downloader.addDownloadTask(url)
-        except TrawlNet.DownloadError as e:
-            raise e
+        if not supported(url):
+            raise ValueError(color.RED+'Incorrect URL'+color.END)
+        else:
+            file_id = generate_id(url)
+            if file_id not in self.files_dic:
+                try:
+                    return self.downloader.addDownloadTask(url)
+                except TrawlNet.DownloadError as e:
+                    raise e
+            else:
+                file = TrawlNet.FileInfo()
+                file.hash = file_id
+                file.name = self.files_dic[file_id] + " (Downloaded previously)"
+                return file
 
     def hello_to(self, orchestrator):
         orchestrator_str = orchestrator.ice_toString()
@@ -100,10 +112,10 @@ class Orchestrator:
 
     def get_files(self):
         files = []
-        for file_hash in self.files_dic:
+        for file_id in self.files_dic:
             file = TrawlNet.FileInfo()
-            file.hash = file_hash
-            file.name = self.files_dic[file_hash]
+            file.hash = file_id
+            file.name = self.files_dic[file_id]
             files.append(file)
         return files
 
