@@ -46,7 +46,7 @@ class Orchestrator:
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
         self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
-        if self.downloader is None:
+        if not self.downloader:
             raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
 
         # Get topics with my_storm
@@ -95,38 +95,13 @@ class Orchestrator:
             self.orchestrators_dic[orchestrator_str] = orchestrator
 
     def get_files(self):
+        files = []
         for file_hash in self.files_dic:
             file = TrawlNet.FileInfo()
             file.hash = file_hash
             file.name = self.files_dic[file_hash]
-
-
-"""Server de fase 1
-class Server(Ice.Application):
-    def run(self, argv):
-        if len(argv) < 2:
-            ValueError(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
-
-        broker = self.communicator()
-
-        downloader_proxy = broker.stringToProxy(argv[1])
-        downloader = TrawlNet.DownloaderPrx.checkedCast(downloader_proxy)
-
-        if not downloader:
-            raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
-
-        adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        servant = OrchestratorI(downloader)
-        proxy = adapter.addWithUUID(servant)
-        print(proxy, flush=True)
-        adapter.activate()
-
-        self.shutdownOnInterrupt()
-        broker.waitForShutdown()
-
-        return 0
-"""
-
+            files.append(file)
+        return files
 
 class Server(Ice.Application):
     def run(self, argv):
