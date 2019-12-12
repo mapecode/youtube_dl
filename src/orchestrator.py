@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import Ice
-from color import Color
+import color
 import my_storm as my_storm
 
 Ice.loadSlice('trawlnet.ice')
@@ -47,7 +47,7 @@ class Orchestrator:
         self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
         if not self.downloader:
-            raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
+            raise ValueError(color.BOLD + color.RED + 'Invalid proxy ' + color.END)
 
         # Get topics with my_storm
         topic_manager = my_storm.get_topic_manager(broker)
@@ -76,7 +76,8 @@ class Orchestrator:
         self.publisher.hello(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
     def stop(self):
-        self.topic.unsubscribe(self.subscriber_prx)
+        self.topic_orchestrator.unsubscribe(self.sync_subscriber_prx)
+        self.topic_updates.unsubscribe(self.updates_subscriber_prx)
 
     def send_download_task(self, url):
         return self.downloader.addDownloadTask(url)
@@ -103,10 +104,11 @@ class Orchestrator:
             files.append(file)
         return files
 
+
 class Server(Ice.Application):
     def run(self, argv):
         if len(argv) < 2:
-            ValueError(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
+            ValueError(color.BOLD + color.RED + 'Error in arguments' + color.END)
 
         broker = self.communicator()
         orchestrator = Orchestrator(broker, argv[1])
