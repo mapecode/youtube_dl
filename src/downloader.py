@@ -1,26 +1,38 @@
 #!/usr/bin/python3
-
+# pylint: disable=C0114
 import sys
 import os
-import hashlib
 import Ice
 from download_mp3 import download_mp3_with_id
-import my_storm as my_storm
+import my_storm
 
+# pylint: disable=E0401, C0413
 Ice.loadSlice('trawlnet.ice')
 import TrawlNet
 
 
 class DownloaderI(TrawlNet.Downloader):
+    # pylint: disable=R0903
+    """Downloader interface implementation for download files"""
+
     def __init__(self, publisher):
+        """
+        @param publisher: for update events channel
+        """
         self.publisher = publisher
 
-    # Add download task 
+    # pylint: disable=C0103, W0613
     def addDownloadTask(self, url, current=None):
+        """
+        Download the video from url
+        @param url: link to the video
+        @param current:
+        @return: file info
+        """
         try:
             out_file, file_id = download_mp3_with_id(url)
-        except Exception as e:
-            raise TrawlNet.DownloadError(str(e))
+        except Exception as msg_exception:
+            raise TrawlNet.DownloadError(str(msg_exception))
 
         file = TrawlNet.FileInfo()
         file.name = os.path.basename(out_file)
@@ -32,7 +44,16 @@ class DownloaderI(TrawlNet.Downloader):
 
 
 class Server(Ice.Application):
-    def run(self, argv):
+    """
+    Downloader Server
+    """
+
+    def run(self, args):
+        """
+        Run implementation
+        @param args: execution arguments
+        @return: success execution
+        """
         broker = self.communicator()
         adapter = broker.createObjectAdapter("DownloaderAdapter")
 
@@ -59,22 +80,3 @@ class Server(Ice.Application):
 
 if __name__ == '__main__':
     sys.exit(Server().main(sys.argv))
-
-    # Server Fase 1
-"""
-    class Server(Ice.Application):
-        def run(self, argv):
-            broker = self.communicator()
-            servant = DownloaderI()
-
-            adapter = broker.createObjectAdapter("DownloaderAdapter")
-            proxy = adapter.addWithUUID(servant)
-
-            print(proxy, flush=True)
-
-            adapter.activate()
-            self.shutdownOnInterrupt()
-            broker.waitForShutdown()
-
-            return 0
-"""

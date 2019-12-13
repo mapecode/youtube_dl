@@ -1,17 +1,17 @@
+# pylint: disable=C0114
 import os
+import sys
 
 try:
     import youtube_dl
 except ImportError:
     print('ERROR: do you have installed youtube-dl library?')
-    exit()
+    sys.exit()
 
 
-class URLException(Exception):
-    pass
-
-
+# pylint: disable=C0115
 class NullLogger:
+    # pylint: disable=C0116
     def debug(self, msg):
         pass
 
@@ -55,13 +55,23 @@ def download_mp3(url, destination='./'):
 
 
 def generate_id(url):
+    """
+    Generate id for a video
+    @param url:
+    @return:
+    """
     with youtube_dl.YoutubeDL(_YOUTUBEDL_OPTS_) as ydl:
         info_dict = ydl.extract_info(url, download=False)
     return info_dict['id']
 
 
 def supported(url):
-    # source: https://github.com/ytdl-org/youtube-dl/issues/4503
+    """ source: https://github.com/ytdl-org/youtube-dl/issues/4503
+    Check the url
+    @param url:
+    @return:
+    """
+    # pylint: disable=C0103
     ies = youtube_dl.extractor.gen_extractors()
     for ie in ies:
         if ie.suitable(url) and ie.IE_NAME != 'generic':
@@ -71,9 +81,12 @@ def supported(url):
 
 
 def download_mp3_with_id(url, destination='./'):
-    '''
-    Synchronous download from YouTube with id
-    '''
+    """
+    Download the video generating the id
+    @param url:
+    @param destination:
+    @return: file, id
+    """
     options = {}
     task_status = {}
 

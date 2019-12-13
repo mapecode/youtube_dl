@@ -1,38 +1,49 @@
 #!/usr/bin/python3
+# pylint: disable=C0114
 import sys
 import Ice
+# pylint: disable=E0401
 import color
 
 Ice.loadSlice('trawlnet.ice')
+# pylint: disable=C0413
 import TrawlNet
-from download_mp3 import URLException
 
 
 class Client(Ice.Application):
-    def run(self, argv):
+    """
+    Client implementation for create the download requests
+    """
+
+    def run(self, args):
+        """
+        Run client implementation
+        @param args: execution arguments
+        @return: success execution
+        """
         broker = self.communicator()
-        proxy = broker.stringToProxy(argv[1])
+        proxy = broker.stringToProxy(args[1])
         orchestrator = TrawlNet.OrchestratorPrx.checkedCast(proxy)
 
         if not orchestrator:
             raise RuntimeError(color.BOLD + color.RED + 'Invalid proxy' + color.END)
 
-        file_list = orchestrator.getFileList()
-        if argv[2] == "":
-            if len(argv) == 0:
+        if args[2] == "":
+            file_list = orchestrator.getFileList()
+            if len(file_list) == 0:
                 print(color.BOLD + color.YELLOW + "\n* The list is empty\n" + color.END)
             else:
                 print(color.BOLD + color.GREEN + "Files List:" + color.END)
                 for file_downloaded in file_list:
-                    print(color.BOLD + color.GREEN + str(file_downloaded) + color.END)
+                    print(color.BOLD + color.GREEN + file_downloaded + color.END)
         else:
             try:
-                file_downloaded = orchestrator.downloadTask(argv[2])
+                file_downloaded = orchestrator.downloadTask(args[2])
                 print(color.GREEN + color.BOLD + "\n" + str(file_downloaded) + "\n" + color.END)
-            except TrawlNet.DownloadError as e:
-                print(e)
-            except ValueError as e:
-                print(e)
+            except TrawlNet.DownloadError as msg_exception:
+                print(msg_exception)
+            except ValueError as msg_exception:
+                print(msg_exception)
 
         return 0
 
