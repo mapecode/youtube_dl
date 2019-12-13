@@ -35,7 +35,7 @@ class Client(Ice.Application):
             else:
                 print(color.BOLD + color.GREEN + "Files List:" + color.END)
                 for file_downloaded in file_list:
-                    print(color.BOLD + color.GREEN + file_downloaded + color.END)
+                    print(color.BOLD + color.GREEN + str(file_downloaded) + color.END)
         else:
             try:
                 file_downloaded = orchestrator.downloadTask(args[2])
