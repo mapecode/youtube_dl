@@ -136,13 +136,9 @@ class Orchestrator:
             self.topic_orchestrator.getPublisher())
 
         # Updates Event subscriber
-        self.updates_subscriber = UpdateEventI(self)
-        self.updates_subscriber_prx = self.adapter.addWithUUID(self.updates_subscriber)  # proxy
+        updates_subscriber = UpdateEventI(self)
+        self.updates_subscriber_prx = self.adapter.addWithUUID(updates_subscriber)  # proxy
         self.topic_updates.subscribeAndGetPublisher({}, self.updates_subscriber_prx)
-
-        # Orchestrator publisher files to new orchestrators
-        self.publisher_updates = TrawlNet.UpdateEventPrx.uncheckedCast(
-            self.topic_updates.getPublisher())
 
         # Orchestrator servant
         servant = OrchestratorI(self)
@@ -187,7 +183,7 @@ class Orchestrator:
 
     def hello_to(self, orchestrator):
         """
-        Notify to me that there is a new orchestrator
+        Notify the rest of the orchestrators that there is a new orchestrator
         @param orchestrator:
         @return:
         """
@@ -196,12 +192,6 @@ class Orchestrator:
             print("New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
             orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
-            # Files update for new orchestrators
-            for file_id in self.files_dic:
-                file = TrawlNet.FileInfo()
-                file.hash = file_id
-                file.name = self.files_dic[file_id]
-                self.publisher_updates.newFile(file)
 
     def new_orchestrator(self, orchestrator):
         """
