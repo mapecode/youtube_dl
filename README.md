@@ -8,5 +8,7 @@ David Camuñas Sánchez
 
 ## Requerimientos
 * zeroc-ice: **sudo apt install python3-zeroc-ice**
+* icebox: **sudo apt install zeroc-ice-icebox**
+* ice-utils: **sudo apt install zeroc-ice-utils**
 * youtube-dl: **pip3 install youtube-dl**
 * ffmpeg: **sudo apt install ffmpeg**
