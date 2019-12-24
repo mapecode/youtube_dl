@@ -3,7 +3,7 @@
 import sys
 import Ice
 # pylint: disable=E0401
-import color
+from utils import Color
 
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
@@ -26,20 +26,20 @@ class Client(Ice.Application):
         orchestrator = TrawlNet.OrchestratorPrx.checkedCast(proxy)
 
         if not orchestrator:
-            raise RuntimeError(color.BOLD + color.RED + 'Invalid proxy' + color.END)
+            raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
 
         if args[2] == "":
             file_list = orchestrator.getFileList()
             if len(file_list) == 0:
-                print(color.BOLD + color.YELLOW + "\n* The list is empty\n" + color.END)
+                print(Color.BOLD + Color.YELLOW + "\n* The list is empty\n" + Color.END)
             else:
-                print(color.BOLD + color.GREEN + "Files List:" + color.END)
+                print(Color.BOLD + Color.GREEN + "Files List:" + Color.END)
                 for file_downloaded in file_list:
-                    print(color.BOLD + color.GREEN + str(file_downloaded) + color.END)
+                    print(Color.BOLD + Color.GREEN + str(file_downloaded) + Color.END)
         else:
             try:
                 file_downloaded = orchestrator.downloadTask(args[2])
-                print(color.GREEN + color.BOLD + "\n" + str(file_downloaded) + "\n" + color.END)
+                print(Color.GREEN + Color.BOLD + "\n" + str(file_downloaded) + "\n" + Color.END)
             except TrawlNet.DownloadError as msg_exception:
                 print(msg_exception)
             except ValueError as msg_exception:

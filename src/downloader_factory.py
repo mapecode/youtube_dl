@@ -3,8 +3,7 @@
 import sys
 import os
 import Ice
-from download_mp3 import download_mp3_with_id
-import my_storm
+from utils import download_mp3_with_id, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME
 
 # pylint: disable=E0401, C0413
 Ice.loadSlice('trawlnet.ice')
@@ -58,10 +57,10 @@ class Server(Ice.Application):
         adapter = broker.createObjectAdapter("DownloaderAdapter")
 
         # Get topic manager from my_storm
-        topic_manager = my_storm.get_topic_manager(broker)
+        topic_manager = get_topic_manager(broker)
 
         # Get topic name from my_storm
-        sync_topic = my_storm.get_topic(topic_manager, my_storm.DOWNLOADER_TOPIC_NAME)
+        sync_topic = get_topic(topic_manager, my_storm.DOWNLOADER_TOPIC_NAME)
 
         # Downloader Servant
         publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())

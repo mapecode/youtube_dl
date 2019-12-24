@@ -4,8 +4,7 @@ import sys
 import Ice
 # pylint: disable=E0401
 import color
-import my_storm
-from download_mp3 import generate_id, supported
+from utils import generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, ORCHESTRATOR_TOPIC_NAME
 
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
@@ -117,14 +116,14 @@ class Orchestrator:
         self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
         if not self.downloader:
-            raise ValueError(color.BOLD + color.RED + 'Invalid proxy ' + color.END)
+            raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
 
         # Get topics with my_storm
-        topic_manager = my_storm.get_topic_manager(broker)
-        self.topic_orchestrator = my_storm.get_topic(
-            topic_manager, my_storm.ORCHESTRATOR_TOPIC_NAME)
-        self.topic_updates = my_storm.get_topic(
-            topic_manager, my_storm.DOWNLOADER_TOPIC_NAME)
+        topic_manager = get_topic_manager(broker)
+        self.topic_orchestrator = get_topic(
+            topic_manager, ORCHESTRATOR_TOPIC_NAME)
+        self.topic_updates = get_topic(
+            topic_manager, DOWNLOADER_TOPIC_NAME)
 
         # Orchestrator subscriber event
         sync_subscriber = OrchestratorEventI(self)
@@ -167,7 +166,7 @@ class Orchestrator:
         @return: the information file
         """
         if not supported(url):
-            raise ValueError(color.RED + 'Incorrect URL' + color.END)
+            raise ValueError(Color.RED + 'Incorrect URL' + Color.END)
 
         file_id = generate_id(url)
         if file_id not in self.files_dic:
@@ -230,7 +229,7 @@ class Server(Ice.Application):
         @return: success execution
         """
         if len(args) < 2:
-            ValueError(color.BOLD + color.RED + 'Error in arguments' + color.END)
+            ValueError(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
 
         broker = self.communicator()
         orchestrator = Orchestrator(broker, args[1])
