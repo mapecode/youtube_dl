@@ -34,8 +34,8 @@ run-downloads-node: /tmp/db/downloads-node/servers
 	icegridnode --Ice.Config=downloads-node.config
 
 app-workspace: /tmp/YoutubeDownloaderApp
-	cp trawlnet.ice orchestrator.py downloader_factory.py \
-	transfer_factory.py utils.py /tmp/YoutubeDownloaderApp
+	cp trawlnet.ice ./src/orchestrator.py ./src/downloader_factory.py \
+	./src/transfer_factory.py ./src/utils.py /tmp/YoutubeDownloaderApp
 	icepatch2calc /tmp/YoutubeDownloaderApp
 
 /tmp/%:
