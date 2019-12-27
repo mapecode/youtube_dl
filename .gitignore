@@ -10,3 +10,6 @@ kill_pids.sh
 run_client_pre.sh
 run_icestorm_pre.sh
 run_server_pre.sh
+icebox_pre.config
+icestorm_pre.config
+server_pre.config
