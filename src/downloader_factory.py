@@ -49,6 +49,20 @@ class DownloaderI(TrawlNet.Downloader):
             print(e)
 
 
+class DownloaderFactoryI(TrawlNet.DownloaderFactory):
+    def __init__(self, publisher):
+        """
+        @param publisher: for update events channel
+        """
+        self.publisher = publisher
+
+    def create(self, current):
+        servant = DownloaderI(self.publisher)
+        proxy = current.adapter.addWithUUID(servant)
+
+        return TrawlNet.DownloaderPrx.checkedCast(proxy)
+
+
 class Server(Ice.Application):
     """
     Downloader Server
