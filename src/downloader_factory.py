@@ -41,6 +41,13 @@ class DownloaderI(TrawlNet.Downloader):
 
         return file
 
+    def destroy(self, current):
+        try:
+            current.adapter.remove(current.id)
+            print('TRASFER DESTROYED', flush=True)
+        except Exception as e:
+            print(e)
+
 
 class Server(Ice.Application):
     """
@@ -60,7 +67,7 @@ class Server(Ice.Application):
         topic_manager = get_topic_manager(broker)
 
         # Get topic name from my_storm
-        sync_topic = get_topic(topic_manager, my_storm.DOWNLOADER_TOPIC_NAME)
+        sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
 
         # Downloader Servant
         publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
