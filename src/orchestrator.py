@@ -3,8 +3,7 @@
 import sys
 import Ice
 # pylint: disable=E0401
-import color
-from utils import generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, ORCHESTRATOR_TOPIC_NAME
+from utils import Color, generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, ORCHESTRATOR_TOPIC_NAME
 
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
