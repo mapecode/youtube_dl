@@ -44,7 +44,7 @@ class DownloaderI(TrawlNet.Downloader):
     def destroy(self, current):
         try:
             current.adapter.remove(current.id)
-            print('TRASFER DESTROYED', flush=True)
+            print('TRANSFER DESTROYED', flush=True)
         except Exception as e:
             print(e)
 
