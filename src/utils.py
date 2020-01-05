@@ -119,7 +119,9 @@ def get_topic_manager(broker):
     @return: topic manager
     """
     key = 'IceStorm.TopicManager.Proxy'
-    topic_manager_proxy = broker.propertyToProxy(key)
+    #topic_manager_proxy = broker.propertyToProxy(key)
+
+    topic_manager_proxy = broker.propertyToProxy(key) # Ejemplo de locator
 
     if topic_manager_proxy is None:
         raise ValueError("property {} not set".format(key))
@@ -127,7 +129,7 @@ def get_topic_manager(broker):
     topic_manager = IceStorm.TopicManagerPrx.checkedCast(topic_manager_proxy)
 
     if not topic_manager:
-        raise ValueError(color.BOLD + color.RED + 'Invalid proxy in topic manager' + color.END)
+        raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy in topic manager' + Color.END)
 
     return topic_manager
 
