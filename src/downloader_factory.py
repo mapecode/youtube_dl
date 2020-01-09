@@ -63,17 +63,10 @@ class DownloaderFactoryI(TrawlNet.DownloaderFactory):
         return TrawlNet.DownloaderPrx.checkedCast(proxy)
 
 
-class Server(Ice.Application):
-    """
-    Downloader Server
-    """
+"""class Server(Ice.Application):
 
     def run(self, args):
-        """
-        Run implementation
-        @param args: execution arguments
-        @return: success execution
-        """
+
         broker = self.communicator()
         adapter = broker.createObjectAdapter("DownloaderAdapter")
 
@@ -95,7 +88,33 @@ class Server(Ice.Application):
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
 
-        return 0
+        return 0"""
+
+
+class Server(Ice.Application):
+    def run(self, run):
+        broker = self.communicator()
+        properties = broker.getProperties()
+        adapter = broker.createObjectAdapter("DownloaderAdapter")
+
+        # Get topic manager from utils.get_topic
+        topic_manager = get_topic_manager(broker)
+
+        # Get topic name from utils.get_topic
+        sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
+
+        # Create downloader factory servant
+        publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
+        servant = DownloaderI(publisher)
+        factory_id = properties.getProperty('DownloaderFactoryIdentity')
+        proxy = adapter.add(servant, broker.stringToIdentity(factory_id))
+
+        print(proxy)
+        sys.stdout.flush()
+
+        adapter.activate()
+        self.shutdownOnInterrupt()
+        broker.waitForShutdown()
 
 
 if __name__ == '__main__':
