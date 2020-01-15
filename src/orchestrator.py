@@ -132,7 +132,7 @@ class Orchestrator:
 
         # Get downloader factory
         downloader_factory_prx = properties.getProperty('DownloaderFactory')
-        self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_factory_prx))
+        self.downloader_factory = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_factory_prx))
 
         if not self.downloader_factory:
             raise ValueError('Invalid proxy for DownloaderFactory')
@@ -199,7 +199,8 @@ class Orchestrator:
         file_id = generate_id(url)
         if file_id not in self.files_dic:
             try:
-                return self.downloader.addDownloadTask(url)
+                downloader = self.downloader_factory.create()
+                return downloader.addDownloadTask(url)
             except TrawlNet.DownloadError as msg_exception:
                 raise msg_exception
         else:
