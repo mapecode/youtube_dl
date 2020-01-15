@@ -43,6 +43,15 @@ class OrchestratorI(TrawlNet.Orchestrator):
         """
         return self.orchestrator.get_files()
 
+    def getFile(self, name, current=None):
+        """
+        Provides a file
+        @param current:
+        @return: the files info
+        :param name: name of the file
+        """
+        return self.orchestrator.get_file(name)
+
     def announce(self, other, current=None):
         """
         Announce an orchestrator when there is a new orchestrator in the system.
@@ -234,6 +243,9 @@ class Orchestrator:
             file.name = self.files_dic[file_id]
             files.append(file)
         return files
+
+    def get_file(self, name):
+        return self.transfer_factory.create(name)
 
 
 class Server(Ice.Application):
