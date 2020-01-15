@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # pylint: disable=C0114
 import sys
+import binascii
+import os
 import Ice
 # pylint: disable=E0401
 from utils import Color
@@ -8,6 +10,9 @@ from utils import Color
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
 import TrawlNet
+
+APP_DIRECTORY = './'
+DOWNLOADS_DIRECTORY = os.path.join(APP_DIRECTORY, 'downloads')
 
 
 class Client(Ice.Application):
@@ -46,6 +51,33 @@ class Client(Ice.Application):
                 print(msg_exception)
 
         return 0
+
+    def transfer_request(self, file_name):
+        remote_EOF = False
+        BLOCK_SIZE = 1024
+
+        try:
+            transfer = self.orchestrator.getFile(file_name)
+        except TrawlNet.TransferError as e:
+            print(e.reason)
+            return 1
+
+        with open(os.path.join(DOWNLOADS_DIRECTORY, file_name), 'wb') as file_:
+            global remote_EOF
+            remote_EOF = False
+
+            while not remote_EOF:
+                data = transfer.recv(BLOCK_SIZE)
+                if len(data) > 1:
+                    data = data[1:]
+                data = binascii.a2b_base64(data)
+                remote_EOF = len(data) < BLOCK_SIZE
+                if data:
+                    file_.write(data)
+            transfer.close()
+
+        transfer.destroy()
+        print('Transfer finished!')
 
 
 if __name__ == '__main__':

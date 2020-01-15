@@ -67,32 +67,3 @@ if __name__ == '__main__':
     app = Server()
     exit_status = app.main(sys.argv)
     sys.exit(exit_status)
-
-
-# Use this function to receive data in the client side.
-# ------------------------------------------------------
-# def transfer_request(self, file_name):
-#     remote_EOF = False
-#     BLOCK_SIZE = 1024
-#     transfer = None
-
-#     try:
-#         transfer = self.orchestrator.getFile(file_name)
-#     except TrawlNet.TransferError as e:
-#         print(e.reason)
-#         return 1
-
-#     with open(os.path.join(DOWNLOADS_DIRECTORY, file_name), 'wb') as file_:
-#         remote_EOF = False
-#         while not remote_EOF:
-#             data = transfer.recv(BLOCK_SIZE)
-#             if len(data) > 1:
-#                 data = data[1:]
-#             data = binascii.a2b_base64(data)
-#             remote_EOF = len(data) < BLOCK_SIZE
-#             if data:
-#                 file_.write(data)
-#         transfer.close()
-
-#     transfer.destroy()
-#     print('Transfer finished!')
