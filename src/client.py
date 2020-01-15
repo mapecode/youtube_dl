@@ -53,7 +53,6 @@ class Client(Ice.Application):
         return 0
 
     def transfer_request(self, file_name):
-        remote_EOF = False
         BLOCK_SIZE = 1024
 
         try:
@@ -63,7 +62,6 @@ class Client(Ice.Application):
             return 1
 
         with open(os.path.join(DOWNLOADS_DIRECTORY, file_name), 'wb') as file_:
-            global remote_EOF
             remote_EOF = False
 
             while not remote_EOF:
