@@ -27,8 +27,10 @@ class Client(Ice.Application):
         @return: success execution
         """
         broker = self.communicator()
-        proxy = broker.stringToProxy(args[1])
-        orchestrator = TrawlNet.OrchestratorPrx.checkedCast(proxy)
+        adapter = broker.createObjectAdapter('OrchestratorAdapter')
+        properties = adapter.getProperties()
+        orchestrator_prx = properties.getProperty('Orchestrator')
+        orchestrator = TrawlNet.OrchestratorPrx.checkedCast(broker.stringToProxy(orchestrator_prx))
 
         if not orchestrator:
             raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
@@ -58,10 +60,10 @@ class Client(Ice.Application):
                 print(msg_exception)
         else:  # Invalid args
             print(Color.BOLD + Color.RED + "Arguments error" + Color.END)
-            print('Examples:\n \
+            print(Color.BOLD + Color.GREEN + 'Examples:\n \
                 * Download song: client.py --download <url> --Ice.Config=client.config\n \
                 * Get List: client.py --Ice.Config=client.config\n \
-                * Init transfer: client.py --transfer <file_name> --Ice.Config=client.config')
+                * Init transfer: client.py --transfer <file_name> --Ice.Config=client.config' + Color.END)
 
         return 0
 
