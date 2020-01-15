@@ -3,7 +3,8 @@
 import sys
 import Ice
 # pylint: disable=E0401
-from utils import Color, generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, ORCHESTRATOR_TOPIC_NAME
+from utils import Color, generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, \
+    ORCHESTRATOR_TOPIC_NAME
 
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
@@ -103,7 +104,7 @@ class Orchestrator:
     Orchestrator service implementation
     """
 
-    def __init__(self, broker, downloader_prx):
+    def __init__(self, broker):
         """
         @param broker: for orchestrator adapter
         @param downloader_prx: downloader proxy
@@ -114,19 +115,24 @@ class Orchestrator:
         # self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
         # self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
-        #if not self.downloader:
+        # if not self.downloader:
         #    raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
 
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
         properties = self.adapter.getProperties()
 
         # Get downloader factory
+        downloader_factory_prx = properties.getProperty('DownloaderFactory')
+        self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_factory_prx))
 
+        if not self.downloader_factory:
+            raise ValueError('Invalid proxy for DownloaderFactory')
+
+        # Get transfer factory
         transfer_factory_prx = properties.getProperty('TransferFactory')
-        transfer_factory_proxy = broker.stringToProxy(transfer_factory_prx)
-        transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(transfer_factory_proxy)
+        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(broker.stringToProxy(transfer_factory_prx))
 
-        if not transfer_factory:
+        if not self.transfer_factory:
             raise ValueError('Invalid proxy for TransferFactory')
 
         # Topic manager preguntar tobias
@@ -245,7 +251,7 @@ class Server(Ice.Application):
             ValueError(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
 
         broker = self.communicator()
-        orchestrator = Orchestrator(broker, args[1])
+        orchestrator = Orchestrator(broker)
         orchestrator.start()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
