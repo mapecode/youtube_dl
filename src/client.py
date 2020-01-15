@@ -33,7 +33,7 @@ class Client(Ice.Application):
         if not orchestrator:
             raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
 
-        if args[2] == "":
+        if args[2] == "":  # List request
             file_list = orchestrator.getFileList()
             if len(file_list) == 0:
                 print(Color.BOLD + Color.YELLOW + "\n* The list is empty\n" + Color.END)
@@ -41,14 +41,27 @@ class Client(Ice.Application):
                 print(Color.BOLD + Color.GREEN + "Files List:" + Color.END)
                 for file_downloaded in file_list:
                     print(Color.BOLD + Color.GREEN + str(file_downloaded) + Color.END)
-        else:
+        elif args[2] == '--download':  # Download request
             try:
-                file_downloaded = orchestrator.downloadTask(args[2])
+                url = args[3]
+                file_downloaded = orchestrator.downloadTask(url)
                 print(Color.GREEN + Color.BOLD + "\n" + str(file_downloaded) + "\n" + Color.END)
             except TrawlNet.DownloadError as msg_exception:
                 print(msg_exception)
             except ValueError as msg_exception:
                 print(msg_exception)
+        elif args[2] == '--transfer':  # Transfer request
+            try:
+                file_name = args[3]
+                self.transfer_request(file_name)
+            except TrawlNet.TransferError as msg_exception:
+                print(msg_exception)
+        else:  # Invalid args
+            print(Color.BOLD + Color.RED + "Arguments error" + Color.END)
+            print('Examples:\n \
+                * Download song: client.py --download <url> --Ice.Config=client.config\n \
+                * Get List: client.py --Ice.Config=client.config\n \
+                * Init transfer: client.py --transfer <file_name> --Ice.Config=client.config')
 
         return 0
 
@@ -75,7 +88,7 @@ class Client(Ice.Application):
             transfer.close()
 
         transfer.destroy()
-        print('Transfer finished!')
+        print(Color.GREEN + Color.BOLD + 'Transfer finished!' + Color.END)
 
 
 if __name__ == '__main__':
