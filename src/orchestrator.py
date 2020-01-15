@@ -111,11 +111,25 @@ class Orchestrator:
         self.orchestrators_dic = {}  # Orchestrators Dictionary {key = proxy, value = broker}
         self.files_dic = {}  # Files Dictionary {key = file_hash, value = file_name}
 
-        self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
+        # self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
+        # self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
 
-        if not self.downloader:
-            raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
+        #if not self.downloader:
+        #    raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
+
+        self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
+        properties = self.adapter.getProperties()
+
+        # Get downloader factory
+
+        transfer_factory_prx = properties.getProperty('TransferFactory')
+        transfer_factory_proxy = broker.stringToProxy(transfer_factory_prx)
+        transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(transfer_factory_proxy)
+
+        if not transfer_factory:
+            raise ValueError('Invalid proxy for TransferFactory')
+
+        # Topic manager preguntar tobias
 
         # Get topics with my_storm
         topic_manager = get_topic_manager(broker)
