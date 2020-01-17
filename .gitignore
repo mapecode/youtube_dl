@@ -1,6 +1,5 @@
 
 .DS_Store
-*.xml
 *.pyc
 *.iml
 *.mp3
@@ -13,3 +12,8 @@ run_server_pre.sh
 icebox_pre.config
 icestorm_pre.config
 server_pre.config
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
