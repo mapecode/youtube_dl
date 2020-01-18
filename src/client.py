@@ -27,15 +27,14 @@ class Client(Ice.Application):
         @return: success execution
         """
         broker = self.communicator()
-        adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        properties = adapter.getProperties()
-        orchestrator_prx = properties.getProperty('Orchestrator')
-        orchestrator = TrawlNet.OrchestratorPrx.checkedCast(broker.stringToProxy(orchestrator_prx))
 
-        if not orchestrator:
-            raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
+        if len(args) == 1:  # List request
+            orchestrator = TrawlNet.OrchestratorPrx.checkedCast(
+                broker.stringToProxy("OrchestratorServer1 -t -e 1.1 @ Orchestrator1.OrchestratorAdapter")
+            )
+            if not orchestrator:
+                raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
 
-        if args[2] == "":  # List request
             file_list = orchestrator.getFileList()
             if len(file_list) == 0:
                 print(Color.BOLD + Color.YELLOW + "\n* The list is empty\n" + Color.END)
@@ -43,19 +42,29 @@ class Client(Ice.Application):
                 print(Color.BOLD + Color.GREEN + "Files List:" + Color.END)
                 for file_downloaded in file_list:
                     print(Color.BOLD + Color.GREEN + str(file_downloaded) + Color.END)
-        elif args[2] == '--download':  # Download request
+        elif args[1] == '--download':  # Download request
+            orchestrator = TrawlNet.OrchestratorPrx.checkedCast(
+                broker.stringToProxy("OrchestratorServer2 -t -e 1.1 @ Orchestrator2.OrchestratorAdapter")
+            )
+            if not orchestrator:
+                raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
             try:
-                url = args[3]
+                url = args[2]
                 file_downloaded = orchestrator.downloadTask(url)
                 print(Color.GREEN + Color.BOLD + "\n" + str(file_downloaded) + "\n" + Color.END)
             except TrawlNet.DownloadError as msg_exception:
                 print(msg_exception)
             except ValueError as msg_exception:
                 print(msg_exception)
-        elif args[2] == '--transfer':  # Transfer request
+        elif args[1] == '--transfer':  # Transfer request
+            orchestrator = TrawlNet.OrchestratorPrx.checkedCast(
+                broker.stringToProxy("OrchestratorServer3 -t -e 1.1 @ Orchestrator3.OrchestratorAdapter")
+            )
+            if not orchestrator:
+                raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
             try:
-                file_name = args[3]
-                self.transfer_request(file_name)
+                file_name = args[2]
+                self.transfer_request(orchestrator,file_name)
             except TrawlNet.TransferError as msg_exception:
                 print(msg_exception)
         else:  # Invalid args
@@ -67,11 +76,12 @@ class Client(Ice.Application):
 
         return 0
 
-    def transfer_request(self, file_name):
+    @staticmethod
+    def transfer_request(orchestrator, file_name):
         BLOCK_SIZE = 1024
 
         try:
-            transfer = self.orchestrator.getFile(file_name)
+            transfer = orchestrator.getFile(file_name)
         except TrawlNet.TransferError as e:
             print(e.reason)
             return 1
