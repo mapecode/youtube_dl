@@ -121,30 +121,24 @@ class Orchestrator:
         self.orchestrators_dic = {}  # Orchestrators Dictionary {key = proxy, value = broker}
         self.files_dic = {}  # Files Dictionary {key = file_hash, value = file_name}
 
-        # self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        # self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
-
-        # if not self.downloader:
-        #    raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy ' + Color.END)
-
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        properties = self.adapter.getProperties()
+        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(
+            broker.stringToProxy("downloaderFactory1 -t -e 1.1 @ "
+                                 "DownloaderFactory1.DownloaderFactoryAdapter"))
+        properties = broker.getProperties()
 
-        # Get downloader factory
-        downloader_factory_prx = properties.getProperty('DownloaderFactory')
-        self.downloader_factory = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_factory_prx))
+        self.id = properties.getProperty('Identity')
 
         if not self.downloader_factory:
             raise ValueError('Invalid proxy for DownloaderFactory')
 
         # Get transfer factory
-        transfer_factory_prx = properties.getProperty('TransferFactory')
-        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(broker.stringToProxy(transfer_factory_prx))
+        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(
+            broker.stringToProxy("transferFactory1 -t -e 1.1 @ "
+                                 "TransferFactory1.TransferAdapter"))
 
         if not self.transfer_factory:
             raise ValueError('Invalid proxy for TransferFactory')
-
-        # Topic manager preguntar tobias
 
         # Get topics with my_storm
         topic_manager = get_topic_manager(broker)
@@ -155,7 +149,9 @@ class Orchestrator:
 
         # Orchestrator subscriber event
         sync_subscriber = OrchestratorEventI(self)
-        self.sync_subscriber_prx = self.adapter.addWithUUID(sync_subscriber)  # proxy
+        sync_subscriber_prx = self.adapter.add(sync_subscriber, Ice.stringToIdentity(
+            properties.getProperty("Sync")))
+        self.sync_subscriber_prx = self.adapter.createDirectProxy(sync_subscriber_prx.ice_getIdentity())
         self.topic_orchestrator.subscribeAndGetPublisher({}, self.sync_subscriber_prx)
 
         # Orchestrator publisher event
@@ -164,12 +160,16 @@ class Orchestrator:
 
         # Updates Event subscriber
         updates_subscriber = UpdateEventI(self)
-        self.updates_subscriber_prx = self.adapter.addWithUUID(updates_subscriber)  # proxy
+        updates_subscriber_prx = self.adapter.add(updates_subscriber, Ice.stringToIdentity(
+            properties.getProperty("Update")))
+        self.updates_subscriber_prx = self.adapter.createDirectProxy(updates_subscriber_prx.ice_getIdentity())
         self.topic_updates.subscribeAndGetPublisher({}, self.updates_subscriber_prx)
 
         # Orchestrator servant
         servant = OrchestratorI(self)
-        self.servant_prx = self.adapter.addWithUUID(servant)  # proxy
+        servant_prx = self.adapter.add(servant, Ice.stringToIdentity(properties.getProperty("Identity")))
+        print(servant_prx)
+        self.servant_prx = self.adapter.createDirectProxy(servant_prx.ice_getIdentity())
 
     def start(self):
         """
@@ -217,7 +217,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print("New orchestrator: " + str(orchestrator_str))
+            print(str(self.id)+" => New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
             orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
@@ -229,7 +229,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print("Previous orchestrator: " + str(orchestrator_str))
+            print(str(self.id)+" => Previous orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
 
     def get_files(self):
@@ -260,8 +260,6 @@ class Server(Ice.Application):
         @param args: execution arguments
         @return: success execution
         """
-        if len(args) < 2:
-            ValueError(Color.BOLD + Color.RED + 'Error in arguments' + Color.END)
 
         broker = self.communicator()
         orchestrator = Orchestrator(broker)
