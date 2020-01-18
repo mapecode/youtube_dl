@@ -2,14 +2,14 @@
 #
 
 echo "Downloading audio..."
-./client.py --download <url> \
+./src/client.py --download <url> \
 --Ice.Config=client.config
 
 echo ""
 echo "List request..."
-./client.py --Ice.Config=client.config
+./src/client.py --Ice.Config=client.config
 
 echo ""
 echo "Init transfer..."
-./client.py --transfer <file_name> \
+./src/client.py --transfer <file_name> \
 --Ice.Config=client.config
