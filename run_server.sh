@@ -31,4 +31,5 @@ icegridnode --Ice.Config=orchestrator-node.config
 
 echo "Shoutting down..."
 sleep 2
-rm $OUT
+rm -rf /tmp/db
+rm -rf /tmp/YoutubeDownloaderApp
