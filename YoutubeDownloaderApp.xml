@@ -48,7 +48,7 @@
                <property name="IceStorm.TopicManager.Proxy" value="YoutubeDownloaderApp.IceStorm"/>
                <property name="Identity" value="downloaderFactory${index}"/>
             </properties>
-            <adapter name="DownloaderFactoryAdapter" endpoints="default" id="${server}.DownloaderFactoryAdapter" replica-group="OrchestratorReplicaGroup"/>
+            <adapter name="DownloaderFactoryAdapter" endpoints="default" id="${server}.DownloaderFactoryAdapter"/>
          </server>
       </server-template>
       <server-template id="Glacier2">
@@ -107,6 +107,8 @@
             <properties>
                <property name="IceStorm.TopicManager.Proxy" value="YoutubeDownloaderApp.IceStorm/TopicManager"/>
                <property name="Identity" value="OrchestratorServer${index}"/>
+               <property name="Sync" value="Sync${index}"/>
+               <property name="Update" value="Update${index}"/>
             </properties>
             <adapter name="OrchestratorAdapter" endpoints="default" id="${server}.OrchestratorAdapter" replica-group="OrchestratorReplicaGroup"/>
          </server>
