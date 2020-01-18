@@ -119,9 +119,8 @@ def get_topic_manager(broker):
     @return: topic manager
     """
     key = 'IceStorm.TopicManager.Proxy'
-    #topic_manager_proxy = broker.propertyToProxy(key)
 
-    topic_manager_proxy = broker.propertyToProxy(key) # Ejemplo de locator
+    topic_manager_proxy = broker.stringToProxy('YoutubeDownloaderApp.IceStorm/TopicManager')
 
     if topic_manager_proxy is None:
         raise ValueError("property {} not set".format(key))
