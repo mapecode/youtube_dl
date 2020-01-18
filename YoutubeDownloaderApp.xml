@@ -118,15 +118,15 @@
                <property name="IceStorm.TopicManager.Proxy" value="YoutubedlApp.IceStorm/TopicManager"/>
                <property name="Identity" value="transferFactory${index}"/>
             </properties>
-            <adapter name="TransferFactoryAdapter" endpoints="default" id="${server}.TransferFactoryAdapter" replica-group="OrchestratorReplicaGroup"/>
+            <adapter name="TransferAdapter" endpoints="default" id="${server}.TransferAdapter"/>
          </server>
       </server-template>
       <replica-group id="OrchestratorReplicaGroup">
          <load-balancing type="random" n-replicas="0"/>
       </replica-group>
       <node name="downloads-node">
-         <server-instance template="DownloaderFactory"/>
-         <server-instance template="TransferFactory"/>
+         <server-instance template="DownloaderFactory" index="1"/>
+         <server-instance template="TransferFactory" index="1"/>
       </node>
       <node name="orchestrator-node">
          <server-instance template="Orchestrator" index="1"/>
@@ -134,7 +134,7 @@
          <server-instance template="Orchestrator" index="3"/>
       </node>
       <node name="registry-node">
-         <server-instance template="IcePatch2"/>
+         <server-instance template="IcePatch2" directory="/tmp/YoutubeDownloaderApp"/>
          <server-instance template="IceStorm"/>
       </node>
    </application>
