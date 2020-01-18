@@ -50,14 +50,15 @@ class DownloaderI(TrawlNet.Downloader):
 
 
 class DownloaderFactoryI(TrawlNet.DownloaderFactory):
-    def __init__(self, publisher):
-        """
-        @param publisher: for update events channel
-        """
-        self.publisher = publisher
+    def __init__(self, broker):
+        self.broker = broker
 
-    def create(self, current):
-        servant = DownloaderI(self.publisher)
+    def create(self, current=None):
+        topic_manager = get_topic_manager(self.broker)
+        sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
+        publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
+
+        servant = DownloaderI(publisher)
         proxy = current.adapter.addWithUUID(servant)
 
         return TrawlNet.DownloaderPrx.checkedCast(proxy)
@@ -95,18 +96,10 @@ class Server(Ice.Application):
     def run(self, run):
         broker = self.communicator()
         properties = broker.getProperties()
-        adapter = broker.createObjectAdapter("DownloaderAdapter")
+        adapter = broker.createObjectAdapter("DownloaderFactoryAdapter")
 
-        # Get topic manager from utils.get_topic
-        topic_manager = get_topic_manager(broker)
-
-        # Get topic name from utils.get_topic
-        sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
-
-        # Create downloader factory servant
-        publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
-        servant = DownloaderI(publisher)
-        factory_id = properties.getProperty('DownloaderFactoryIdentity')
+        servant = DownloaderFactoryI(broker)
+        factory_id = properties.getProperty('Identity')
         proxy = adapter.add(servant, broker.stringToIdentity(factory_id))
 
         print(proxy)
