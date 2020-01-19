@@ -47,6 +47,7 @@
             <properties>
                <property name="IceStorm.TopicManager.Proxy" value="YoutubeDownloaderApp.IceStorm"/>
                <property name="Identity" value="downloaderFactory${index}"/>
+               <property name="DownloadsDirectory" value="/tmp/DownloadedFiles/"/>
             </properties>
             <adapter name="DownloaderFactoryAdapter" endpoints="default" id="${server}.DownloaderFactoryAdapter"/>
          </server>

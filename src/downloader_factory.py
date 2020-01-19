@@ -14,11 +14,12 @@ class DownloaderI(TrawlNet.Downloader):
     # pylint: disable=R0903
     """Downloader interface implementation for download files"""
 
-    def __init__(self, publisher):
+    def __init__(self, publisher, downloads_directory):
         """
         @param publisher: for update events channel
         """
         self.publisher = publisher
+        self.downloads_directory = downloads_directory
 
     # pylint: disable=C0103, W0613
     def addDownloadTask(self, url, current=None):
@@ -29,7 +30,7 @@ class DownloaderI(TrawlNet.Downloader):
         @return: file info
         """
         try:
-            out_file, file_id = download_mp3_with_id(url)
+            out_file, file_id = download_mp3_with_id(url, destination=self.downloads_directory)
         except Exception as msg_exception:
             raise TrawlNet.DownloadError(str(msg_exception))
 
@@ -50,15 +51,16 @@ class DownloaderI(TrawlNet.Downloader):
 
 
 class DownloaderFactoryI(TrawlNet.DownloaderFactory):
-    def __init__(self, broker):
+    def __init__(self, broker, downloads_directory):
         self.broker = broker
+        self.downloads_directory = downloads_directory
 
     def create(self, current=None):
         topic_manager = get_topic_manager(self.broker)
         sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
         publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
 
-        servant = DownloaderI(publisher)
+        servant = DownloaderI(publisher, self.downloads_directory)
         proxy = current.adapter.addWithUUID(servant)
 
         return TrawlNet.DownloaderPrx.checkedCast(proxy)
@@ -98,7 +100,7 @@ class Server(Ice.Application):
         properties = broker.getProperties()
         adapter = broker.createObjectAdapter("DownloaderFactoryAdapter")
 
-        servant = DownloaderFactoryI(broker)
+        servant = DownloaderFactoryI(broker, properties.getProperty("DownloadsDirectory"))
         factory_id = properties.getProperty('Identity')
         proxy = adapter.add(servant, broker.stringToIdentity(factory_id))
 
