@@ -49,7 +49,7 @@ class Client(Ice.Application):
             if not orchestrator:
                 raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
             try:
-                url = args[2]
+                url = input('Input the url \n> ')
                 file_downloaded = orchestrator.downloadTask(url)
                 print(Color.GREEN + Color.BOLD + "\n" + str(file_downloaded) + "\n" + Color.END)
             except TrawlNet.DownloadError as msg_exception:
@@ -63,8 +63,8 @@ class Client(Ice.Application):
             if not orchestrator:
                 raise RuntimeError(Color.BOLD + Color.RED + 'Invalid proxy' + Color.END)
             try:
-                file_name = args[2]
-                self.transfer_request(orchestrator,file_name)
+                file_name = input('Input the filename \n> ')
+                self.transfer_request(orchestrator, file_name)
             except TrawlNet.TransferError as msg_exception:
                 print(msg_exception)
         else:  # Invalid args
