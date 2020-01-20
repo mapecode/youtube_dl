@@ -34,3 +34,4 @@ echo "Shoutting down..."
 sleep 2
 rm -rf /tmp/db
 rm -rf /tmp/YoutubeDownloaderApp
+rm -rf /tmp/DownloadedFiles
