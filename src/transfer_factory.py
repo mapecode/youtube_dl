@@ -23,7 +23,11 @@ class TransferI(TrawlNet.Transfer):
         """
         @param file_path: path of the file
         """
-        self.file_ = open(file_path, 'rb')
+        try:
+            self.file_ = open(file_path, 'rb')
+        except Exception as msg_exception:
+            raise TrawlNet.TransferError(str(msg_exception))
+
 
     def recv(self, size, current):
         """

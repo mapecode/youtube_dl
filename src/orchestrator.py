@@ -203,7 +203,7 @@ class Orchestrator:
                 downloader = self.downloader_factory.create()
                 return downloader.addDownloadTask(url)
             except TrawlNet.DownloadError as msg_exception:
-                raise msg_exception
+                raise TrawlNet.DownloadError(msg_exception)
         else:
             file = TrawlNet.FileInfo()
             file.hash = file_id
@@ -253,8 +253,8 @@ class Orchestrator:
         """
         try:
             return self.transfer_factory.create(name)
-        except TrawlNet.TransferError as msg_exception:
-            raise msg_exception
+        except:
+            raise TrawlNet.TransferError("Transfer error")
 
 
 class Server(Ice.Application):

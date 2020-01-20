@@ -39,7 +39,7 @@ class Client(Ice.Application):
                     print(Color.BOLD + Color.GREEN + str(file_downloaded) + Color.END)
         elif args[2] == '--download':  # Download request
             try:
-                url = input(Color.BOLD+Color.BLUE+'\nInput the url \n> '+Color.END)
+                url = input(Color.BOLD + Color.BLUE + '\nInput the url \n> ' + Color.END)
                 file_downloaded = orchestrator.downloadTask(url)
                 print(Color.GREEN + Color.BOLD + "\n" + str(file_downloaded) + "\n" + Color.END)
             except TrawlNet.DownloadError as msg_exception:
@@ -48,15 +48,15 @@ class Client(Ice.Application):
                 print(msg_exception)
         elif args[2] == '--transfer':  # Transfer request
             try:
-                file_name = input(Color.BOLD+Color.BLUE+'\nInput the filename \n> '+Color.END)
+                file_name = input(Color.BOLD + Color.BLUE + '\nInput the filename \n> ' + Color.END)
                 self.transfer_request(orchestrator, file_name)
             except TrawlNet.TransferError as msg_exception:
                 print(msg_exception)
         else:  # Invalid args
             print(Color.BOLD + Color.RED + "Arguments error" + Color.END)
-            print(Color.BOLD + Color.GREEN + 'Examples:'+Color.END)
-            print(Color.GREEN+'* Download song: client.py --download <url> '
-                              '--Ice.Config=client.config')
+            print(Color.BOLD + Color.GREEN + 'Examples:' + Color.END)
+            print(Color.GREEN + '* Download song: client.py --download <url> '
+                                '--Ice.Config=client.config')
             print('* Get List: client.py --Ice.Config=client.config')
             print('* Init transfer: client.py --transfer <file_name> '
                   '--Ice.Config=client.config' + Color.END)
@@ -77,8 +77,7 @@ class Client(Ice.Application):
         try:
             transfer = orchestrator.getFile(file_name)
         except TrawlNet.TransferError as e:
-            print(e.reason)
-            return 1
+            raise TrawlNet.DownloadError(e)
 
         with open(os.path.join('./', file_name), 'wb') as file_:
             remote_EOF = False
