@@ -12,10 +12,6 @@ Ice.loadSlice('trawlnet.ice')
 import TrawlNet
 
 
-APP_DIRECTORY = './'
-DOWNLOADS_DIRECTORY = os.path.join(APP_DIRECTORY, 'downloads')
-
-
 class TransferI(TrawlNet.Transfer):
     def __init__(self, file_path):
         self.file_ = open(file_path, 'rb')
@@ -35,8 +31,11 @@ class TransferI(TrawlNet.Transfer):
 
 
 class TransferFactoryI(TrawlNet.TransferFactory):
+    def __init__(self, downloads_directory):
+        self.downloads_directory = downloads_directory
+
     def create(self, file_name, current):
-        file_path = os.path.join(DOWNLOADS_DIRECTORY, file_name)
+        file_path = os.path.join(self.downloads_directory, file_name)
         servant = TransferI(file_path)
         proxy = current.adapter.addWithUUID(servant)
         print('# New transfer for {} #'.format(file_path), flush=True)
@@ -49,7 +48,7 @@ class Server(Ice.Application):
         ic = self.communicator()
         properties = ic.getProperties()
 
-        servant = TransferFactoryI()
+        servant = TransferFactoryI(properties.getProperty("DownloadsDirectory"))
         adapter = ic.createObjectAdapter('TransferAdapter')
         factory_id = properties.getProperty('Identity')
         proxy = adapter.add(servant, ic.stringToIdentity(factory_id))

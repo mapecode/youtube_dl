@@ -105,6 +105,8 @@
       <server-template id="Orchestrator">
          <parameter name="index"/>
          <server id="Orchestrator${index}" activation="manual" exe="./orchestrator.py" pwd="${application.distrib}">
+            <option>downloaderFactory1 -t -e 1.1 @ DownloaderFactory1.DownloaderFactoryAdapter</option>
+            <option>transferFactory1 -t -e 1.1 @ TransferFactory1.TransferAdapter</option>
             <properties>
                <property name="IceStorm.TopicManager.Proxy" value="YoutubeDownloaderApp.IceStorm/TopicManager"/>
                <property name="Identity" value="OrchestratorServer${index}"/>
@@ -120,6 +122,7 @@
             <properties>
                <property name="IceStorm.TopicManager.Proxy" value="YoutubedlApp.IceStorm/TopicManager"/>
                <property name="Identity" value="transferFactory${index}"/>
+               <property name="DownloadsDirectory" value="/tmp/DownloadedFiles/"/>
             </properties>
             <adapter name="TransferAdapter" endpoints="default" id="${server}.TransferAdapter"/>
          </server>

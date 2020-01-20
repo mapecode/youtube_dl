@@ -113,7 +113,7 @@ class Orchestrator:
     Orchestrator service implementation
     """
 
-    def __init__(self, broker):
+    def __init__(self, broker, downloader_prx, transfer_prx):
         """
         @param broker: for orchestrator adapter
         @param downloader_prx: downloader proxy
@@ -122,9 +122,7 @@ class Orchestrator:
         self.files_dic = {}  # Files Dictionary {key = file_hash, value = file_name}
 
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(
-            broker.stringToProxy("downloaderFactory1 -t -e 1.1 @ "
-                                 "DownloaderFactory1.DownloaderFactoryAdapter"))
+        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(broker.stringToProxy(downloader_prx))
         properties = broker.getProperties()
 
         self.id = properties.getProperty('Identity')
@@ -133,9 +131,7 @@ class Orchestrator:
             raise ValueError('Invalid proxy for DownloaderFactory')
 
         # Get transfer factory
-        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(
-            broker.stringToProxy("transferFactory1 -t -e 1.1 @ "
-                                 "TransferFactory1.TransferAdapter"))
+        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(broker.stringToProxy(transfer_prx))
 
         if not self.transfer_factory:
             raise ValueError('Invalid proxy for TransferFactory')
@@ -217,7 +213,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print(str(self.id)+" => New orchestrator: " + str(orchestrator_str))
+            print(str(self.id) + " => New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
             orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
@@ -229,7 +225,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print(str(self.id)+" => Previous orchestrator: " + str(orchestrator_str))
+            print(str(self.id) + " => Previous orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
 
     def get_files(self):
@@ -262,7 +258,7 @@ class Server(Ice.Application):
         """
 
         broker = self.communicator()
-        orchestrator = Orchestrator(broker)
+        orchestrator = Orchestrator(broker, args[1], args[2])
         orchestrator.start()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
