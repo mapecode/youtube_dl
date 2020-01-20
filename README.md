@@ -34,13 +34,13 @@
 * Ejecutar icegridgui en un host y realizar mismos pasos descritos anteriormente
 
 ### Realizar peticiones
-* Petición de descarga: make run-client-download
-* Petición de listar descagas: make run-client-list
+* Petición de descarga: **make run-client-download**
+* Petición de listar descagas: **make run-client-list**
 * Petición de transferencia: make run-client-transfer (esta petición no tiene sentido si lanzamos el sistema en un solo host)
 
 Para las peticiones de descarga y transferencia se pedirá por teclado la url en el primer caso y el nombre del archivo
 a transferir en el segundo caso.
 
 ### Apagar sistema
-* Matar los icegridnode: make stop
-* Eliminar directorios creados: make clean     
+* Matar los icegridnode: **make stop**
+* Eliminar directorios creados: **make clean**     
