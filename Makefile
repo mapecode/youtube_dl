@@ -48,4 +48,4 @@ clean:
 	$(RM) -r /tmp/DownloadedFiles
 
 stop:
-	./kill_pids.sh icegridnode
+	killall icegridnode
