@@ -122,7 +122,8 @@ class Orchestrator:
         self.files_dic = {}  # Files Dictionary {key = file_hash, value = file_name}
 
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(broker.stringToProxy(downloader_prx))
+        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(
+            broker.stringToProxy(downloader_prx))
         properties = broker.getProperties()
 
         self.id = properties.getProperty('Identity')
@@ -131,7 +132,8 @@ class Orchestrator:
             raise ValueError('Invalid proxy for DownloaderFactory')
 
         # Get transfer factory
-        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(broker.stringToProxy(transfer_prx))
+        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(
+            broker.stringToProxy(transfer_prx))
 
         if not self.transfer_factory:
             raise ValueError('Invalid proxy for TransferFactory')
@@ -147,7 +149,8 @@ class Orchestrator:
         sync_subscriber = OrchestratorEventI(self)
         sync_subscriber_prx = self.adapter.add(sync_subscriber, Ice.stringToIdentity(
             properties.getProperty("Sync")))
-        self.sync_subscriber_prx = self.adapter.createDirectProxy(sync_subscriber_prx.ice_getIdentity())
+        self.sync_subscriber_prx = self.adapter.createDirectProxy(
+            sync_subscriber_prx.ice_getIdentity())
         self.topic_orchestrator.subscribeAndGetPublisher({}, self.sync_subscriber_prx)
 
         # Orchestrator publisher event
@@ -158,12 +161,14 @@ class Orchestrator:
         updates_subscriber = UpdateEventI(self)
         updates_subscriber_prx = self.adapter.add(updates_subscriber, Ice.stringToIdentity(
             properties.getProperty("Update")))
-        self.updates_subscriber_prx = self.adapter.createDirectProxy(updates_subscriber_prx.ice_getIdentity())
+        self.updates_subscriber_prx = self.adapter.createDirectProxy(
+            updates_subscriber_prx.ice_getIdentity())
         self.topic_updates.subscribeAndGetPublisher({}, self.updates_subscriber_prx)
 
         # Orchestrator servant
         servant = OrchestratorI(self)
-        servant_prx = self.adapter.add(servant, Ice.stringToIdentity(properties.getProperty("Identity")))
+        servant_prx = self.adapter.add(servant, Ice.stringToIdentity(
+            properties.getProperty("Identity")))
         print(servant_prx)
         self.servant_prx = self.adapter.createDirectProxy(servant_prx.ice_getIdentity())
 
@@ -242,6 +247,10 @@ class Orchestrator:
         return files
 
     def get_file(self, name):
+        """
+        transfer for get a file
+        @return: the transfer
+        """
         try:
             return self.transfer_factory.create(name)
         except TrawlNet.TransferError as msg_exception:

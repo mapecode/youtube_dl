@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# pylint: disable=C0114
+# pylint: disable=C0114, E0401
 import sys
 import os
 import Ice
@@ -17,6 +17,7 @@ class DownloaderI(TrawlNet.Downloader):
     def __init__(self, publisher, downloads_directory):
         """
         @param publisher: for update events channel
+        @param downloads_directory:
         """
         self.publisher = publisher
         self.downloads_directory = downloads_directory
@@ -43,6 +44,10 @@ class DownloaderI(TrawlNet.Downloader):
         return file
 
     def destroy(self, current):
+        """
+        For destroy a downloader
+        @param current:
+        """
         try:
             current.adapter.remove(current.id)
             print('TRANSFER DESTROYED', flush=True)
@@ -51,11 +56,23 @@ class DownloaderI(TrawlNet.Downloader):
 
 
 class DownloaderFactoryI(TrawlNet.DownloaderFactory):
+    # pylint: disable=R0903
+    """Downloader Factory interface implementation for create downloaders"""
+
     def __init__(self, broker, downloads_directory):
+        """
+        @param broker: broker for operations
+        @param downloads_directory: directory for downloads
+        """
         self.broker = broker
         self.downloads_directory = downloads_directory
 
     def create(self, current=None):
+        """
+        For create a downloader
+        @param current:
+        @return: the downloader
+        """
         topic_manager = get_topic_manager(self.broker)
         sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
         publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
@@ -66,36 +83,16 @@ class DownloaderFactoryI(TrawlNet.DownloaderFactory):
         return TrawlNet.DownloaderPrx.checkedCast(proxy)
 
 
-"""class Server(Ice.Application):
+class Server(Ice.Application):
+    """
+    DownloaderFactory Server
+    """
 
     def run(self, args):
-
-        broker = self.communicator()
-        adapter = broker.createObjectAdapter("DownloaderAdapter")
-
-        # Get topic manager from my_storm
-        topic_manager = get_topic_manager(broker)
-
-        # Get topic name from my_storm
-        sync_topic = get_topic(topic_manager, DOWNLOADER_TOPIC_NAME)
-
-        # Downloader Servant
-        publisher = TrawlNet.UpdateEventPrx.uncheckedCast(sync_topic.getPublisher())
-        servant = DownloaderI(publisher)
-
-        proxy = adapter.addWithUUID(servant)
-        print(str(proxy))
-        sys.stdout.flush()
-
-        adapter.activate()
-        self.shutdownOnInterrupt()
-        broker.waitForShutdown()
-
-        return 0"""
-
-
-class Server(Ice.Application):
-    def run(self, run):
+        """
+        Run implementation
+        @return: success execution
+        """
         broker = self.communicator()
         properties = broker.getProperties()
         adapter = broker.createObjectAdapter("DownloaderFactoryAdapter")
@@ -110,6 +107,8 @@ class Server(Ice.Application):
         adapter.activate()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()
+
+        return 0
 
 
 if __name__ == '__main__':
