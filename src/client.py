@@ -54,15 +54,24 @@ class Client(Ice.Application):
                 print(msg_exception)
         else:  # Invalid args
             print(Color.BOLD + Color.RED + "Arguments error" + Color.END)
-            print(Color.BOLD + Color.GREEN + 'Examples:\n \
-                * Download song: client.py --download <url> --Ice.Config=client.config\n \
-                * Get List: client.py --Ice.Config=client.config\n \
-                * Init transfer: client.py --transfer <file_name> --Ice.Config=client.config' + Color.END)
+            print(Color.BOLD + Color.GREEN + 'Examples:'+Color.END)
+            print(Color.GREEN+'* Download song: client.py --download <url> '
+                              '--Ice.Config=client.config')
+            print('* Get List: client.py --Ice.Config=client.config')
+            print('* Init transfer: client.py --transfer <file_name> '
+                  '--Ice.Config=client.config' + Color.END)
 
         return 0
 
     @staticmethod
     def transfer_request(orchestrator, file_name):
+        """
+        Download file from a host
+        @param orchestrator: server
+        @param file_name: file to download
+        @return:
+        """
+        # pylint: disable=C0103
         BLOCK_SIZE = 1024
 
         try:

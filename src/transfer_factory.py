@@ -17,7 +17,10 @@ class TransferI(TrawlNet.Transfer):
         self.file_ = open(file_path, 'rb')
 
     def recv(self, size, current):
-        return str(binascii.b2a_base64(self.file_.read(size), newline=False))
+        try:
+            return str(binascii.b2a_base64(self.file_.read(size), newline=False))
+        except Exception as msg_exception:
+            raise TrawlNet.TransferError(str(msg_exception))
 
     def close(self, current):
         self.file_.close()

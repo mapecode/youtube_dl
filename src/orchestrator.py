@@ -242,7 +242,10 @@ class Orchestrator:
         return files
 
     def get_file(self, name):
-        return self.transfer_factory.create(name)
+        try:
+            return self.transfer_factory.create(name)
+        except TrawlNet.TransferError as msg_exception:
+            raise msg_exception
 
 
 class Server(Ice.Application):
