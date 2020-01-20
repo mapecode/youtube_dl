@@ -13,3 +13,34 @@
 * ice-utils: **sudo apt install zeroc-ice-utils**
 * youtube-dl: **pip3 install youtube-dl**
 * ffmpeg: **sudo apt install ffmpeg**
+
+## Manual de usuario
+### Ejecución en un solo host
+* Ejecutar el script [run_server.sh](run_server.sh): creará los directorios necesarios y lanzará los icegridnodes
+* Ejecutar icegridgui
+    * Conectar con el registry
+    * Cargar aplicación [YoutubeDownloaderApp.xml](YoutubeDownloaderApp.xml) y guardar en el registry
+    * Ejecutar los servidores en el siguiente orden:
+        * registry-node
+        * downloads-node
+        * orchestrator-node
+        
+### Ejecución en dos hosts
+* Copiar archivos de la práctica en ambos hosts
+* Cambiar la dirección ip de las configuraciones del locator por la ip del host 1
+* Crear los directorios necesarios en ambos hosts: **make app-workspace**
+* Ejecutar el nodo registry-node y orchestrator-node en el host 1
+* Ejecutar el nodo downloads-node en el host 2
+* Ejecutar icegridgui en un host y realizar mismos pasos descritos anteriormente
+
+### Realizar peticiones
+* Petición de descarga: make run-client-download
+* Petición de listar descagas: make run-client-list
+* Petición de transferencia: make run-client-transfer (esta petición no tiene sentido si lanzamos el sistema en un solo host)
+
+Para las peticiones de descarga y transferencia se pedirá por teclado la url en el primer caso y el nombre del archivo
+a transferir en el segundo caso.
+
+### Apagar sistema
+* Matar los icegridnode: make stop
+* Eliminar directorios creados: make clean     
