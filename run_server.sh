@@ -1,21 +1,37 @@
 #!/bin/sh
+#
 
-PYTHON=python3
+echo "Creating directories in /tmp..."
+mkdir -p /tmp/YoutubeDownloaderApp
+mkdir -p /tmp/DownloadedFiles/
+cp trawlnet.ice ./src/orchestrator.py ./src/downloader_factory.py ./src/transfer_factory.py \
+./src/utils.py /tmp/YoutubeDownloaderApp
+echo "Exec icepatch2calc..."
+icepatch2calc /tmp/YoutubeDownloaderApp
 
-DOWNLOADER_CONFIG=server.config
-ORCHESTRATOR_CONFIG=$DOWNLOADER_CONFIG
+echo "Exec registry-node"
+mkdir -p /tmp/db/registry
+mkdir -p /tmp/db/registry-node/servers
+icegridnode --Ice.Config=registry-node.config &
+sleep 2
 
-PRX=$(tempfile)
-$PYTHON src/downloader.py --Ice.Config=$DOWNLOADER_CONFIG>$PRX &
-PID=$!
+echo "Exec downloads-node"
+mkdir -p /tmp/db/downloads-node/servers/distrib/YoutubeDownloaderApp
+cp trawlnet.ice ./src/downloader_factory.py ./src/transfer_factory.py ./src/utils.py \
+/tmp/db/downloads-node/servers/distrib/YoutubeDownloaderApp
+chmod +x /tmp/db/downloads-node/servers/distrib/YoutubeDownloaderApp/*
+icegridnode --Ice.Config=downloads-node.config &
+sleep 2
 
-# Dejamos arrancar al downloader
-sleep 1
-echo "Downloader: $(cat $PRX)"
-
-# Lanzamos el orchestrator
-$PYTHON src/orchestrator.py --Ice.Config=$ORCHESTRATOR_CONFIG "$(cat $PRX)"
+echo "Exec orchestrator-node"
+mkdir -p /tmp/db/orchestrator-node/servers/distrib/YoutubeDownloaderApp
+cp trawlnet.ice ./src/orchestrator.py ./src/utils.py \
+/tmp/db/orchestrator-node/servers/distrib/YoutubeDownloaderApp
+chmod +x /tmp/db/orchestrator-node/servers/distrib/YoutubeDownloaderApp/*
+icegridnode --Ice.Config=orchestrator-node.config
 
 echo "Shoutting down..."
-kill -KILL $PID
-rm $PRX
+sleep 2
+rm -rf /tmp/db
+rm -rf /tmp/YoutubeDownloaderApp
+rm -rf /tmp/DownloadedFiles

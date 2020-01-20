@@ -1,8 +1,19 @@
 
 .DS_Store
-*.xml
 *.pyc
 *.iml
 *.mp3
 *.mdb
 *.lock
+kill_pids.sh
+run_client_pre.sh
+run_icestorm_pre.sh
+run_server_pre.sh
+icebox_pre.config
+icestorm_pre.config
+server_pre.config
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml

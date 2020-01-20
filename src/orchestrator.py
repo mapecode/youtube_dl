@@ -3,9 +3,8 @@
 import sys
 import Ice
 # pylint: disable=E0401
-import color
-import my_storm
-from download_mp3 import generate_id, supported
+from utils import Color, generate_id, supported, get_topic, get_topic_manager, DOWNLOADER_TOPIC_NAME, \
+    ORCHESTRATOR_TOPIC_NAME
 
 Ice.loadSlice('trawlnet.ice')
 # pylint: disable=C0413
@@ -43,6 +42,15 @@ class OrchestratorI(TrawlNet.Orchestrator):
         @return: the files info
         """
         return self.orchestrator.get_files()
+
+    def getFile(self, name, current=None):
+        """
+        Provides a file
+        @param current:
+        @return: the files info
+        :param name: name of the file
+        """
+        return self.orchestrator.get_file(name)
 
     def announce(self, other, current=None):
         """
@@ -105,7 +113,7 @@ class Orchestrator:
     Orchestrator service implementation
     """
 
-    def __init__(self, broker, downloader_prx):
+    def __init__(self, broker, downloader_prx, transfer_prx):
         """
         @param broker: for orchestrator adapter
         @param downloader_prx: downloader proxy
@@ -114,21 +122,35 @@ class Orchestrator:
         self.files_dic = {}  # Files Dictionary {key = file_hash, value = file_name}
 
         self.adapter = broker.createObjectAdapter('OrchestratorAdapter')
-        self.downloader = TrawlNet.DownloaderPrx.checkedCast(broker.stringToProxy(downloader_prx))
+        self.downloader_factory = TrawlNet.DownloaderFactoryPrx.checkedCast(
+            broker.stringToProxy(downloader_prx))
+        properties = broker.getProperties()
 
-        if not self.downloader:
-            raise ValueError(color.BOLD + color.RED + 'Invalid proxy ' + color.END)
+        self.id = properties.getProperty('Identity')
+
+        if not self.downloader_factory:
+            raise ValueError('Invalid proxy for DownloaderFactory')
+
+        # Get transfer factory
+        self.transfer_factory = TrawlNet.TransferFactoryPrx.checkedCast(
+            broker.stringToProxy(transfer_prx))
+
+        if not self.transfer_factory:
+            raise ValueError('Invalid proxy for TransferFactory')
 
         # Get topics with my_storm
-        topic_manager = my_storm.get_topic_manager(broker)
-        self.topic_orchestrator = my_storm.get_topic(
-            topic_manager, my_storm.ORCHESTRATOR_TOPIC_NAME)
-        self.topic_updates = my_storm.get_topic(
-            topic_manager, my_storm.DOWNLOADER_TOPIC_NAME)
+        topic_manager = get_topic_manager(broker)
+        self.topic_orchestrator = get_topic(
+            topic_manager, ORCHESTRATOR_TOPIC_NAME)
+        self.topic_updates = get_topic(
+            topic_manager, DOWNLOADER_TOPIC_NAME)
 
         # Orchestrator subscriber event
         sync_subscriber = OrchestratorEventI(self)
-        self.sync_subscriber_prx = self.adapter.addWithUUID(sync_subscriber)  # proxy
+        sync_subscriber_prx = self.adapter.add(sync_subscriber, Ice.stringToIdentity(
+            properties.getProperty("Sync")))
+        self.sync_subscriber_prx = self.adapter.createDirectProxy(
+            sync_subscriber_prx.ice_getIdentity())
         self.topic_orchestrator.subscribeAndGetPublisher({}, self.sync_subscriber_prx)
 
         # Orchestrator publisher event
@@ -137,12 +159,18 @@ class Orchestrator:
 
         # Updates Event subscriber
         updates_subscriber = UpdateEventI(self)
-        self.updates_subscriber_prx = self.adapter.addWithUUID(updates_subscriber)  # proxy
+        updates_subscriber_prx = self.adapter.add(updates_subscriber, Ice.stringToIdentity(
+            properties.getProperty("Update")))
+        self.updates_subscriber_prx = self.adapter.createDirectProxy(
+            updates_subscriber_prx.ice_getIdentity())
         self.topic_updates.subscribeAndGetPublisher({}, self.updates_subscriber_prx)
 
         # Orchestrator servant
         servant = OrchestratorI(self)
-        self.servant_prx = self.adapter.addWithUUID(servant)  # proxy
+        servant_prx = self.adapter.add(servant, Ice.stringToIdentity(
+            properties.getProperty("Identity")))
+        print(servant_prx)
+        self.servant_prx = self.adapter.createDirectProxy(servant_prx.ice_getIdentity())
 
     def start(self):
         """
@@ -167,14 +195,15 @@ class Orchestrator:
         @return: the information file
         """
         if not supported(url):
-            raise ValueError(color.RED + 'Incorrect URL' + color.END)
+            raise ValueError(Color.RED + 'Incorrect URL' + Color.END)
 
         file_id = generate_id(url)
         if file_id not in self.files_dic:
             try:
-                return self.downloader.addDownloadTask(url)
+                downloader = self.downloader_factory.create()
+                return downloader.addDownloadTask(url)
             except TrawlNet.DownloadError as msg_exception:
-                raise msg_exception
+                raise TrawlNet.DownloadError(msg_exception)
         else:
             file = TrawlNet.FileInfo()
             file.hash = file_id
@@ -189,7 +218,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print("New orchestrator: " + str(orchestrator_str))
+            print(str(self.id) + " => New orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
             orchestrator.announce(TrawlNet.OrchestratorPrx.checkedCast(self.servant_prx))
 
@@ -201,7 +230,7 @@ class Orchestrator:
         """
         orchestrator_str = orchestrator.ice_toString()
         if orchestrator_str not in self.orchestrators_dic:
-            print("Previous orchestrator: " + str(orchestrator_str))
+            print(str(self.id) + " => Previous orchestrator: " + str(orchestrator_str))
             self.orchestrators_dic[orchestrator_str] = orchestrator
 
     def get_files(self):
@@ -217,6 +246,16 @@ class Orchestrator:
             files.append(file)
         return files
 
+    def get_file(self, name):
+        """
+        transfer for get a file
+        @return: the transfer
+        """
+        try:
+            return self.transfer_factory.create(name)
+        except:
+            raise TrawlNet.TransferError("Transfer error")
+
 
 class Server(Ice.Application):
     """
@@ -229,11 +268,9 @@ class Server(Ice.Application):
         @param args: execution arguments
         @return: success execution
         """
-        if len(args) < 2:
-            ValueError(color.BOLD + color.RED + 'Error in arguments' + color.END)
 
         broker = self.communicator()
-        orchestrator = Orchestrator(broker, args[1])
+        orchestrator = Orchestrator(broker, args[1], args[2])
         orchestrator.start()
         self.shutdownOnInterrupt()
         broker.waitForShutdown()

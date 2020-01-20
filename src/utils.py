@@ -1,4 +1,4 @@
-# pylint: disable=C0114
+import IceStorm
 import os
 import sys
 
@@ -8,6 +8,8 @@ except ImportError:
     print('ERROR: do you have installed youtube-dl library?')
     sys.exit()
 
+
+# DOWNLOADER
 
 # pylint: disable=C0115
 class NullLogger:
@@ -102,3 +104,59 @@ def download_mp3_with_id(url, destination='./'):
     # BUG: filename extension is wrong, it must be mp3
     filename = filename[:filename.rindex('.') + 1]
     return (filename + options['postprocessors'][0]['preferredcodec']), info_dict['id']
+
+
+# MY STORM
+
+ORCHESTRATOR_TOPIC_NAME = 'OrchestratorSync'
+DOWNLOADER_TOPIC_NAME = 'UpdateEvents'
+
+
+def get_topic_manager(broker):
+    """
+    Function for create a topic manager
+    @param broker:
+    @return: topic manager
+    """
+    key = 'IceStorm.TopicManager.Proxy'
+
+    topic_manager_proxy = broker.stringToProxy('YoutubeDownloaderApp.IceStorm/TopicManager')
+
+    if topic_manager_proxy is None:
+        raise ValueError("property {} not set".format(key))
+    # pylint: disable=E1101
+    topic_manager = IceStorm.TopicManagerPrx.checkedCast(topic_manager_proxy)
+
+    if not topic_manager:
+        raise ValueError(Color.BOLD + Color.RED + 'Invalid proxy in topic manager' + Color.END)
+
+    return topic_manager
+
+
+def get_topic(topic_manager, topic_name):
+    """
+    Function for generate the topic
+    @param topic_manager: the topic manager for create the topic
+    @param topic_name: the topic name
+    @return: topic
+    """
+    try:
+        return topic_manager.retrieve(topic_name)
+    # pylint: disable=E1101
+    except IceStorm.NoSuchTopic:
+        return topic_manager.create(topic_name)
+
+
+# COLOR PRINT
+
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
