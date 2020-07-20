@@ -5,8 +5,6 @@
 [Mario Pérez](https://github.com/mapecode)  
 [David Camuñas](https://github.com/dcamunas)
 
-[Repositorio](https://github.com/mapecode/PerezCamunas)
-
 ## Requerimientos
 * zeroc-ice: **sudo apt install python3-zeroc-ice**
 * icebox: **sudo apt install zeroc-ice-icebox**
